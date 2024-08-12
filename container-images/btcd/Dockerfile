@@ -25,7 +25,8 @@ FROM golang@sha256:c80567372be0d486766593cc722d3401038e2f150a0f6c5c719caa63afb40
 
 ARG ARCH
 
-ADD . /app
+RUN apk add git && git clone https://github.com/btcsuite/btcd /app
+
 WORKDIR /app
 RUN set -ex \
   && if [ "${ARCH}" = "amd64" ]; then export GOARCH=amd64; fi \
