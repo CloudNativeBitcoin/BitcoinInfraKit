@@ -22,7 +22,7 @@ LABEL org.opencontainers.image.source="https://github.com/nbd-wtf/bitcoin_signet
 ENV BITCOIN_DIR /root/.bitcoin 
 
 ENV NBITS=${NBITS}
-ENV SIGNETCHALLENGE=${SIGNETCHALLENGE}
+ENV SIGNETCHALLENGE=${SIGNETCHALLENGE:-512102f7561d208dd9ae99bf497273e16f389bdbd6c4742ddb8e6b216e64fa2928ad8f51ae}
 ENV PRIVKEY=${PRIVKEY}
 
 ENV RPCUSER=${RPCUSER:-"bitcoin"}
@@ -41,8 +41,8 @@ ENV ZMQPUBHASHBLOCK=${ZMQPUBHASHBLOCK:-"tcp://0.0.0.0:28334"}
 ENV RPCBIND=${RPCBIND:-"0.0.0.0:38332"}
 ENV RPCALLOWIP=${RPCALLOWIP:-"0.0.0.0/0"}
 ENV WHITELIST=${WHITELIST:-"0.0.0.0/0"}
-ENV ADDNODE=${ADDNODE:-""}
-ENV BLOCKPRODUCTIONDELAY=${BLOCKPRODUCTIONDELAY:-""}
+ENV ADDNODE=${ADDNODE:-"45.79.52.207:38333"}
+ENV BLOCKPRODUCTIONDELAY=${BLOCKPRODUCTIONDELAY:-"30"}
 ENV MINERENABLED=${MINERENABLED:-"1"}
 ENV MINETO=${MINETO:-""}
 ENV EXTERNAL_IP=${EXTERNAL_IP:-""} 
@@ -54,9 +54,8 @@ RUN  apt-get update && \
      apt-get clean
 COPY --from=builder "/tmp/bin" /usr/local/bin 
 COPY docker-entrypoint.sh /usr/local/bin/entrypoint.sh
-COPY miner_imports /usr/local/bin
-COPY miner /usr/local/bin/miner
-COPY *.sh /usr/local/bin/
+COPY gen-bitcoind-conf.sh /usr/local/bin/
+COPY run.sh /usr/local/bin/
 COPY rpcauth.py /usr/local/bin/rpcauth.py
 RUN pip3 install setuptools
 
