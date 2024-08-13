@@ -7,15 +7,19 @@ cloud-native bitcoin infrastructure
 
 Included from [btcsuite/btcd](https://github.com/btcsuite/btcd).
 
-Building the image:
+- Docker Hub: [bitcoininfrakit/btcd](https://hub.docker.com/u/bitcoininfrakit/btcd)
+- Github: [cloudnativebitcoin/btcd](https://ghcr.io/cloudnativebitcoin/btcd) _SLSA v1 Build Level 3_
+
+<details><summary>Building the image</summary>
 
 ```shell
 cd container-images/btcd
 
 docker build -t bitcoininfrakit/btcd:v0.24.2 .
 ```
+</details>
 
-Running the image:
+<details><summary>Running the image</summary>
 
 ```shell
 BTCD_DATA=/data/btcd
@@ -25,31 +29,37 @@ docker run -itd --rm --name=btcd \
   -v $BTCD_DATA:/data \
   bitcoininfrakit/btcd:v0.24.2
 ```
+</details>
 
 ### mutinynet
 
 Included from [MutinyWallet/mutiny-net](https://github.com/MutinyWallet/mutiny-net).
 
+- Docker Hub: [bitcoininfrakit/mutinynet](https://hub.docker.com/u/bitcoininfrakit/mutinynet)
+- Github: [cloudnativebitcoin/mutinynet](https://ghcr.io/cloudnativebitcoin/mutinynet) _SLSA v1 Build Level 3_
+
 This is a custom build of `bitcoind` that runs a signet with 30-second
 blocktime. It also has Covtools, CAT, and LNHANCE softforks activated.
 
-Building the image:
+<details><summary>Building the image</summary>
 
 ```shell
 cd container-images/mutinynet
 
 docker build -t bitcoininfrakit/mutinynet:v27 .
 ```
+</details>
 
-Running the image:
+<details><summary>Running the image</summary>
 
 ```shell
 docker run -itd --rm --name=mutinynet \
   -p 38332:38332 \
   bitcoininfrakit/mutinynet:v27
 ```
+</details>
 
-Connecting to the mutinynet bitcoind:
+<details><summary>Connecting to mutinynet bitcoind</summary>
 
 ```shell
 bitcoin-cli -rpcconnect=localhost:38332 \
@@ -57,6 +67,7 @@ bitcoin-cli -rpcconnect=localhost:38332 \
   -rpcpassword=bitcoin \
   getblockchain
 ```
+</details>
 
 ---
 
