@@ -1,4 +1,4 @@
-name: ci
+name: Container image build and push
 
 on:
   push:
@@ -7,9 +7,15 @@ on:
     paths:
       - 'container-images/**'
 
+permissions:
+  id-token: write
+  packages: write
+  contents: read
+  attestations: write
+
 env:
   DOCKERHUB_ORG: ${{ github.event.inputs.dockerhub-org || 'bitcoininfrakit' }}
-  GITHUB_REPO: 
+  GITHUB_NAMESPACE: ${{ github.event.inputs.github-namespace || 'cloudnativebitcoin' }}
 
 jobs:
   docker:
@@ -37,17 +43,39 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push to GHCR
+        id: ghcrpush
+        uses: docker/build-push-action@v6
+        with:
+          context: container-images/${{ env.IMAGE_NAME }}
+          file: container-images/${{ env.IMAGE_NAME }}/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.GITHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}:v${{ env.VERSION }}
+
+      - name: Attest build provenance to GHCR
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ghcr.io/${{ env.GITHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.ghcrpush.outputs.digest }}
+          push-to-registry: true
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push to Docker Hub
         uses: docker/build-push-action@v6
         with:
           context: container-images/${{ env.IMAGE_NAME }}
           file: container-images/${{ env.IMAGE_NAME }}/Dockerfile
           push: true
           tags: ${{ env.DOCKERHUB_ORG }}/${{ env.IMAGE_NAME }}:v${{ env.VERSION }}
-
